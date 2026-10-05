@@ -1,5 +1,7 @@
 module.exports = {
   preset: 'jest-expo',
+  // Cold Babel transforms on CI runners can exceed the 5 s default for the first test.
+  testTimeout: 30_000,
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   testMatch: ['<rootDir>/test/**/*.test.{ts,tsx}'],
   moduleNameMapper: {
