@@ -1,0 +1,12 @@
+build/
+temp/
+api-docs/
+etc/
+node_modules/
+example/node_modules/
+example/android/
+example/ios/
+example/.expo/
+package-lock.json
+example/package-lock.json
+docs/

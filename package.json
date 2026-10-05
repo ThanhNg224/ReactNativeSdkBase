@@ -2,6 +2,7 @@
   "name": "react-native-sdk-base",
   "version": "0.1.0",
   "description": "A template for building a React Native SDK in TypeScript with an Expo native module: instance-based client, injectable HTTP transport, typed errors, and safe structured operation observability.",
+  "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "exports": {
@@ -31,13 +32,25 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "node scripts/build.js",
-    "clean": "node scripts/clean.js",
-    "lint": "eslint src/",
-    "test": "node scripts/test.js",
-    "prepare": "node scripts/prepare.js",
-    "open:ios": "node scripts/open-ios.js",
-    "open:android": "node scripts/open-android.js"
+    "build": "tsc",
+    "clean": "node scripts/clean.cjs",
+    "prepare": "node scripts/clean.cjs && tsc",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
+    "test": "jest",
+    "boundaries": "node scripts/check-boundaries.cjs",
+    "example:verify": "npm --prefix example run typecheck && npm --prefix example test",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run boundaries && npm run example:verify",
+    "api": "npm run build && api-extractor run --local -c api-extractor.json && api-extractor run --local -c api-extractor.testing.json",
+    "api:check": "api-extractor run -c api-extractor.json && api-extractor run -c api-extractor.testing.json",
+    "docs": "typedoc",
+    "package:check": "publint --strict && attw --pack . --profile esm-only && node scripts/check-pack.cjs",
+    "ci": "npm run verify && npm run build && npm run api:check && npm run docs && npm run package:check && npm publish --dry-run --ignore-scripts",
+    "packaged-example": "node scripts/packaged-example.cjs",
+    "open:ios": "node scripts/open-ios.cjs",
+    "open:android": "node scripts/open-android.cjs"
   },
   "keywords": [
     "react-native",
@@ -59,9 +72,12 @@
     "node": ">=22.13"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@babel/core": "^7.26.0",
+    "@microsoft/api-extractor": "^7.59.3",
     "@react-native/jest-preset": "^0.86.3",
     "@types/jest": "^29.2.1",
+    "@types/node": "^22.13.0",
     "@types/react": "~19.2.2",
     "babel-preset-expo": "~57.0.13",
     "eslint": "~9.39.4",
@@ -70,15 +86,11 @@
     "jest": "^29.7.0",
     "jest-expo": "~57.0.5",
     "prettier": "^3.0.0",
+    "publint": "^0.3.25",
     "react": "19.2.3",
     "react-native": "0.86.3",
+    "typedoc": "^0.28.20",
     "typescript": "~6.0.3"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "roots": [
-      "<rootDir>/src"
-    ]
   },
   "peerDependencies": {
     "expo": ">=57.0.0",

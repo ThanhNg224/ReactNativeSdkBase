@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "extends": "./api-extractor.json",
+  "mainEntryPointFilePath": "<projectFolder>/build/testing.d.ts",
+  "apiReport": {
+    "enabled": true,
+    "reportFileName": "react-native-sdk-base-testing.api.md",
+    "reportFolder": "<projectFolder>/etc/",
+    "reportTempFolder": "<projectFolder>/temp/"
+  },
+  "messages": {
+    "extractorMessageReporting": {
+      "ae-forgotten-export": {
+        "logLevel": "none",
+        "addToApiReportFile": false
+      }
+    }
+  }
+}
