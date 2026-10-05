@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["ReactNativeSdkBaseModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.reactnativesdkbase.ReactNativeSdkBaseModule"]
+  }
+}

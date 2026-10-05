@@ -1,0 +1,20 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+def packageJson = new groovy.json.JsonSlurper().parse(file('../package.json'))
+
+group = 'expo.modules.reactnativesdkbase'
+version = packageJson.version
+
+android {
+  namespace "expo.modules.reactnativesdkbase"
+  defaultConfig {
+    versionCode 1
+    versionName packageJson.version
+  }
+  lintOptions {
+    abortOnError false
+  }
+}

@@ -1,0 +1,2 @@
+/** The package version sent in `X-Sdk-Version` on every request. */
+export const sdkVersion = '0.1.0';
