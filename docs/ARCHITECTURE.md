@@ -16,7 +16,8 @@ re-exporting it by name from one entry point; there is no `export *`.
 persistence, or mutable module-level state — several `SdkClient` instances
 must run side by side. Only `src/internal/native/` imports `expo`; the rest of
 `src/` imports nothing outside `src/`, so the core loads and runs in plain
-Node.
+Node. `scripts/check-boundaries.cjs` enforces these rules and the example's
+import boundary.
 
 ## 3. One path through the SDK
 
@@ -58,9 +59,9 @@ the shape.
    capture one terminal event. Parse only 2xx bodies; map unparseable bodies to
    `invalid_response`.
 5. Expose it from `SdkClient` and re-export its public types by name from
-   `src/index.ts`.
-6. Add new error codes to `SdkErrorCodes` and `CHANGELOG.md`, then update the
-   API Extractor report.
+   `src/index.ts`, with TSDoc and an `@public` tag.
+6. Add new error codes to `SdkErrorCodes` and `CHANGELOG.md`, then run
+   `npm run api` and commit the regenerated reports.
 
 ## Adding a native capability
 

@@ -11,6 +11,23 @@
    `docs/ARCHITECTURE.md`, `docs/STANDARD.md`, `docs/GIT_FLOW.md`, and
    `docs/AGENTS.md`. This document becomes decision history.
 
+**Implementation notes (2026-10-05).** Recorded during implementation; the
+owning documents (`docs/ARCHITECTURE.md`, `docs/STANDARD.md`) are current.
+
+1. The package is ESM-only: `"type": "module"` and explicit `.js` relative
+   imports, so publint and attw (`esm-only` profile) pass (§3, §10).
+2. API Extractor keeps one report per entry point:
+   `etc/react-native-sdk-base.api.md` and
+   `etc/react-native-sdk-base-testing.api.md` (§10).
+3. Import boundaries live in `scripts/check-boundaries.cjs`; ESLint owns the
+   runtime-global rules (§3, §10).
+4. The example's routes are under `example/src/app/` (Expo Router's root), so
+   providers live in `example/src/app-providers/` rather than under the routes
+   (§9).
+5. The native module falls back to an empty string for a missing bundle or
+   package value instead of throwing; `ReactContextLost` maps to `native`
+   (§7).
+
 **Goal:** Build a publishable React Native SDK template in TypeScript that
 carries over the proven contracts of
 [`FlutterSdkBase`](../../../FlutterSdkBase/docs/superpowers/specs/2026-09-14-flutter-sdk-base-design.md)

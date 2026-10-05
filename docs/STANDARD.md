@@ -6,8 +6,9 @@
 - Every export carries TSDoc; API Extractor treats a missing doc or release tag
   as an error.
 - Entry points re-export by name; no `export *`, no default exports.
-- `etc/react-native-sdk-base.api.md` is committed. A public API change is not
-  done until the regenerated report is reviewed and committed.
+- `etc/react-native-sdk-base.api.md` and `etc/react-native-sdk-base-testing.api.md`
+  are committed. A public API change is not done until `npm run api`
+  regenerates them and the diff is reviewed and committed.
 - Public signatures never mention `fetch`, Expo, React Native, or
   implementation types. `AbortSignal` is the one deliberate exception.
 - Public data is `readonly` interfaces; returned objects are frozen. There is
@@ -75,14 +76,20 @@
 
 ## Commands
 
-- `npm run verify` — Prettier check, ESLint (zero warnings, import
-  boundaries), `tsc --noEmit`, Jest, and `scripts/check-boundaries`.
-- `npm run ci` — the CI-equivalent local gate: clean install, verify, API
-  Extractor report check, TypeDoc with warnings as errors, publint,
-  `@arethetypeswrong/cli`, the `npm pack` file-list check, and
-  `npm publish --dry-run`.
+- `npm run verify` — Prettier check, ESLint (zero warnings, runtime-global
+  rules), `tsc --noEmit` over `src/` and `test/`, Jest, the boundary check
+  (`scripts/check-boundaries.cjs`: import boundaries, no `export *`, no
+  default exports, no module-level `let`/`var`), and the example's typecheck
+  and tests.
+- `npm run ci` — verify, then build, the API Extractor report check, TypeDoc
+  with warnings as errors, `publint --strict`, `attw --profile esm-only`, the
+  `npm pack` file-list check, and `npm publish --dry-run`. Run after `npm ci`
+  in the root and `example/`.
+- `npm run api` — regenerate both API reports after an intended API change.
 - `npm run packaged-example -- --platform android` — the committed-`HEAD`
-  artifact consumer gate. It archives `HEAD` with `git archive`, packs it,
+  artifact consumer gate (`--abi` defaults to `arm64-v8a`; `--expo latest`
+  upgrades the staged consumer to the latest Expo SDK; `--keep` keeps the
+  staging directory; Android needs `ANDROID_HOME`). It archives `HEAD` with `git archive`, packs it,
   installs the tarball into a staged copy of `example/`, proves resolution
   never reaches the checkout, then runs `expo prebuild --clean`, typecheck,
   tests, and a native build. Use `--platform ios` for the simulator build on
@@ -92,8 +99,10 @@
 
 - TypeScript runs with `strict`, `exactOptionalPropertyTypes`, and
   `noUncheckedIndexedAccess`.
-- publint and `@arethetypeswrong/cli` must report zero problems for both entry
-  points; the `npm pack` file list must match the `files` allow-list exactly.
+- The package is ESM-only (`"type": "module"`, explicit `.js` relative
+  imports in `src/`). publint and `@arethetypeswrong/cli` (`esm-only` profile)
+  must report zero problems for both entry points; the `npm pack` file list
+  must match the `files` allow-list exactly.
 - CI runs the packaged consumer on Android and iOS for the Expo SDK floor and
   the latest stable SDK. A floor that is never built is not a commitment.
 - CI never generates coverage it does not read and never publishes.
