@@ -1,5 +1,5 @@
 import { createHarness, firstRequestId } from './support';
-import { SdkClient, SdkErrorCodes } from '../src/index';
+import { SdkClient, SdkErrorCodes, sdkNativeUnavailableErrorCode } from '../src/index';
 import { FakeSdkHttpTransport, fakeSdkDeviceInfo } from '../src/testing';
 
 test('returns validated, frozen device info and one event', async () => {
@@ -26,6 +26,20 @@ test('maps a missing native module to native_unavailable', async () => {
   });
 });
 
+test('a custom bridge signals unavailability with the exported code', async () => {
+  const { client } = createHarness({
+    nativeBridge: {
+      getDeviceInfo: () =>
+        Promise.reject(
+          Object.assign(new Error('missing'), { code: sdkNativeUnavailableErrorCode })
+        ),
+    },
+  });
+  await expect(client.device.getInfo()).rejects.toMatchObject({
+    code: SdkErrorCodes.nativeUnavailable,
+  });
+});
+
 test('maps any other native rejection to native', async () => {
   const { client, bridge } = createHarness();
   bridge.failWith('ERR_SDK_SOMETHING');
@@ -41,6 +55,7 @@ test.each([
   ['unknown platform', { ...fakeSdkDeviceInfo, platform: 'web' }],
   ['missing field', { ...fakeSdkDeviceInfo, appId: undefined }],
   ['non-string field', { ...fakeSdkDeviceInfo, buildNumber: 7 }],
+  ['empty field', { ...fakeSdkDeviceInfo, appVersion: '' }],
 ])('maps a malformed native result (%s) to invalid_response', async (_, value) => {
   const { client, bridge } = createHarness();
   bridge.respondWith(value);

@@ -1,5 +1,4 @@
-import type { SdkNativeBridge } from './native-bridge.js';
-import { nativeUnavailableErrorCode } from '../errors/failure-tables.js';
+import { sdkNativeUnavailableErrorCode, type SdkNativeBridge } from './native-bridge.js';
 
 interface ReactNativeSdkBaseModule {
   getDeviceInfoAsync(): Promise<unknown>;
@@ -7,7 +6,7 @@ interface ReactNativeSdkBaseModule {
 
 function unavailable(cause?: unknown): Error {
   const error = new Error('The ReactNativeSdkBase native module is not available.');
-  Object.defineProperty(error, 'code', { value: nativeUnavailableErrorCode });
+  Object.defineProperty(error, 'code', { value: sdkNativeUnavailableErrorCode });
   if (cause !== undefined) Object.defineProperty(error, 'cause', { value: cause });
   return error;
 }

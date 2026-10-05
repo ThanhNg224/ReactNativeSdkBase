@@ -1,6 +1,5 @@
 import type { SdkDeviceInfo } from '../device/device-info.js';
-import { nativeUnavailableErrorCode } from '../errors/failure-tables.js';
-import type { SdkNativeBridge } from '../native/native-bridge.js';
+import { sdkNativeUnavailableErrorCode, type SdkNativeBridge } from '../native/native-bridge.js';
 
 type Behaviour =
   | { readonly kind: 'respond'; readonly value: unknown }
@@ -49,7 +48,7 @@ export class FakeSdkNativeBridge implements SdkNativeBridge {
 
   /** Rejects as if the native module were not linked. */
   failUnavailable(): this {
-    return this.failWith(nativeUnavailableErrorCode);
+    return this.failWith(sdkNativeUnavailableErrorCode);
   }
 
   /** Never answers. */

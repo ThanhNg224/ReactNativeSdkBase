@@ -31,8 +31,9 @@ function decodeDeviceInfo(raw: unknown): SdkDeviceInfo {
     throw new TypeError('Device info has an unknown platform.');
   }
   for (const field of stringFields) {
-    if (typeof record[field] !== 'string') {
-      throw new TypeError(`Device info field ${field} is not a string.`);
+    const value = record[field];
+    if (typeof value !== 'string' || value.length === 0) {
+      throw new TypeError(`Device info field ${field} is not a non-empty string.`);
     }
   }
   return Object.freeze({

@@ -1,5 +1,6 @@
 import { SdkErrorCodes, type SdkErrorCode } from './error-codes.js';
 import { SdkError } from './sdk-error.js';
+import { sdkNativeUnavailableErrorCode } from '../native/native-bridge.js';
 
 interface FailureAdvice {
   readonly code: SdkErrorCode;
@@ -20,14 +21,11 @@ export function failureForStatus(statusCode: number): FailureAdvice {
   return { code: SdkErrorCodes.client, isRetryable: false };
 }
 
-/** The native error code a bridge uses when the native module is missing. */
-export const nativeUnavailableErrorCode = 'ERR_SDK_NATIVE_UNAVAILABLE';
-
 /** The single native failure table. */
 export function nativeFailure(error: unknown, requestId: string): SdkError {
   const nativeCode =
     typeof error === 'object' && error !== null ? (error as { code?: unknown }).code : undefined;
-  if (nativeCode === nativeUnavailableErrorCode) {
+  if (nativeCode === sdkNativeUnavailableErrorCode) {
     return new SdkError({
       code: SdkErrorCodes.nativeUnavailable,
       message: 'The SDK native module is not linked into this app.',
@@ -56,3 +54,4 @@ export function invalidResponse(requestId: string, cause: unknown, statusCode?: 
     cause,
   });
 }
+

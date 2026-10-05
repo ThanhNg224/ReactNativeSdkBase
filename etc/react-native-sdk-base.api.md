@@ -120,6 +120,9 @@ export interface SdkNativeBridge {
 }
 
 // @public
+export const sdkNativeUnavailableErrorCode = "ERR_SDK_NATIVE_UNAVAILABLE";
+
+// @public
 export interface SdkObserver {
     onOperation(event: SdkOperationEvent): void;
 }

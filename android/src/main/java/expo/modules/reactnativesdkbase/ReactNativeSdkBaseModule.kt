@@ -3,6 +3,7 @@ package expo.modules.reactnativesdkbase
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -18,11 +19,15 @@ class ReactNativeSdkBaseModule : Module() {
         "platform" to "android",
         "osVersion" to Build.VERSION.RELEASE,
         "appId" to context.packageName,
-        "appVersion" to (packageInfo.versionName ?: ""),
+        "appVersion" to required(packageInfo.versionName, "versionName"),
         "buildNumber" to buildNumber(packageInfo),
       )
     }
   }
+
+  private fun required(value: String?, field: String): String =
+    value?.takeIf { it.isNotEmpty() }
+      ?: throw CodedException("ERR_SDK_MISSING_APP_METADATA", "The app package has no $field.", null)
 
   private fun packageInfo(packageManager: PackageManager, packageName: String): PackageInfo =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -19,6 +19,7 @@ export type { SdkHealth } from './internal/health/health.js';
 export type { SdkHealthService } from './internal/health/health-service.js';
 export type { SdkDeviceInfo } from './internal/device/device-info.js';
 export type { SdkDeviceService } from './internal/device/device-service.js';
+export { sdkNativeUnavailableErrorCode } from './internal/native/native-bridge.js';
 export type { SdkNativeBridge } from './internal/native/native-bridge.js';
 export type { SdkObserver, SdkOperationEvent } from './internal/observability/operation-event.js';
 export type {
