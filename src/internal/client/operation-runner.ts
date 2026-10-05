@@ -1,7 +1,9 @@
-import { SdkErrorCodes } from '../errors/error-codes.js';
-import { SdkError, isSdkError } from '../errors/sdk-error.js';
-import type { SdkObserver, SdkOperationEvent } from '../observability/operation-event.js';
+import { abortFailure } from '../errors/failure-tables.js';
+import { isSdkError, type SdkError } from '../errors/sdk-error.js';
+import { notifyObserver } from '../observability/notify-observer.js';
+import type { SdkObserver } from '../observability/operation-event.js';
 import { sdkVersion } from '../version.js';
+import { OperationLifetime } from './operation-lifetime.js';
 import type { SdkOperationOptions } from './operation-options.js';
 
 /** What a running operation can see and record. */
@@ -19,12 +21,8 @@ export interface RunnerSeams {
   readonly createRequestId: () => string;
 }
 
-type AbortReason = 'timeout' | 'cancelled';
-
-interface ActiveOperation {
-  abort(): void;
-  readonly settled: Promise<unknown>;
-}
+/** Maps a non-`SdkError` rejection to the capability family's failure. */
+export type UnknownFailureMapper = (error: unknown, requestId: string) => SdkError;
 
 /**
  * The one path every public operation takes: closed check, request ID, timeout,
@@ -32,113 +30,79 @@ interface ActiveOperation {
  * terminal event.
  */
 export class SdkOperationRunner {
-  private readonly active = new Set<ActiveOperation>();
+  private readonly inFlight = new Map<OperationLifetime, Promise<unknown>>();
   private closing: Promise<void> | undefined;
 
   constructor(
     private readonly timeoutMs: number,
     private readonly observer: SdkObserver | undefined,
-    readonly seams: RunnerSeams
+    private readonly seams: RunnerSeams
   ) {}
 
-  /**
-   * Runs `body`. `mapUnknown` turns a non-`SdkError` rejection from `body` into
-   * the capability family's failure.
-   */
   run<T>(
     operation: string,
     options: SdkOperationOptions | undefined,
     body: (context: OperationContext) => Promise<T>,
-    mapUnknown: (error: unknown, requestId: string) => SdkError
+    mapUnknown: UnknownFailureMapper
   ): Promise<T> {
     if (this.closing !== undefined) {
       return Promise.reject(new Error('SdkClient is closed.'));
     }
     const startedAt = this.seams.now();
-    const controller = new AbortController();
+    const lifetime = new OperationLifetime(this.timeoutMs, options?.signal);
     const context: OperationContext = {
       requestId: this.seams.createRequestId(),
-      signal: controller.signal,
-    };
-    let abortReason: AbortReason | undefined;
-    let rejectAborted: (reason: AbortReason) => void = () => {};
-    const aborted = new Promise<never>((_, reject) => {
-      rejectAborted = reject;
-    });
-    const abort = (reason: AbortReason): void => {
-      if (abortReason !== undefined) return;
-      abortReason = reason;
-      controller.abort();
-      rejectAborted(reason);
+      signal: lifetime.signal,
     };
 
-    const hostSignal = options?.signal;
-    const onHostAbort = (): void => abort('cancelled');
-    hostSignal?.addEventListener('abort', onHostAbort);
-    const timer = setTimeout(() => abort('timeout'), this.timeoutMs);
-
-    const execute = async (): Promise<T> => {
-      if (hostSignal?.aborted === true) abort('cancelled');
-      if (abortReason !== undefined) await aborted;
-      const work = body(context);
-      // The losing side of the race must never surface as an unhandled rejection.
-      work.catch(() => {});
-      return Promise.race([work, aborted]);
-    };
-
-    const settled = execute().then(
-      (value) => {
-        this.emit(operation, context, startedAt, undefined);
-        return value;
-      },
-      (error: unknown) => {
-        const failure =
-          abortReason !== undefined
-            ? this.abortFailure(abortReason, context)
-            : isSdkError(error)
-              ? error
-              : mapUnknown(error, context.requestId);
-        this.emit(operation, context, startedAt, failure);
-        throw failure;
-      }
-    );
-    const entry: ActiveOperation = {
-      abort: () => abort('cancelled'),
-      settled: settled.catch(() => {}),
-    };
-    this.active.add(entry);
-    entry.settled.then(() => {
-      clearTimeout(timer);
-      hostSignal?.removeEventListener('abort', onHostAbort);
-      this.active.delete(entry);
-    });
-    return settled;
+    const result = lifetime
+      .race(() => body(context))
+      .then(
+        (value) => {
+          this.emit(operation, context, startedAt, undefined);
+          return value;
+        },
+        (error: unknown) => {
+          const failure = this.normalise(error, lifetime, context.requestId, mapUnknown);
+          this.emit(operation, context, startedAt, failure);
+          throw failure;
+        }
+      );
+    this.track(lifetime, result);
+    return result;
   }
 
   /** Rejects new operations, cancels in-flight ones, and waits for them. Idempotent. */
   close(): Promise<void> {
     if (this.closing === undefined) {
-      const inFlight = [...this.active];
-      for (const operation of inFlight) operation.abort();
-      this.closing = Promise.all(inFlight.map((operation) => operation.settled)).then(() => {});
+      const settled = [...this.inFlight.values()];
+      for (const lifetime of this.inFlight.keys()) lifetime.abort('cancelled');
+      this.closing = Promise.all(settled).then(() => {});
     }
     return this.closing;
   }
 
-  private abortFailure(reason: AbortReason, context: OperationContext): SdkError {
-    return reason === 'timeout'
-      ? new SdkError({
-          code: SdkErrorCodes.timeout,
-          message: 'The operation timed out.',
-          isRetryable: true,
-          requestId: context.requestId,
-        })
-      : new SdkError({
-          code: SdkErrorCodes.cancelled,
-          message: 'The operation was cancelled.',
-          isRetryable: false,
-          requestId: context.requestId,
-        });
+  /** An abort always wins; otherwise keep SDK errors and map everything else. */
+  private normalise(
+    error: unknown,
+    lifetime: OperationLifetime,
+    requestId: string,
+    mapUnknown: UnknownFailureMapper
+  ): SdkError {
+    if (lifetime.reason !== undefined) return abortFailure(lifetime.reason, requestId);
+    return isSdkError(error) ? error : mapUnknown(error, requestId);
+  }
+
+  private track(lifetime: OperationLifetime, result: Promise<unknown>): void {
+    const settled = result.then(
+      () => {},
+      () => {}
+    );
+    this.inFlight.set(lifetime, settled);
+    settled.then(() => {
+      lifetime.dispose();
+      this.inFlight.delete(lifetime);
+    });
   }
 
   private emit(
@@ -147,27 +111,21 @@ export class SdkOperationRunner {
     startedAt: number,
     failure: SdkError | undefined
   ): void {
-    const observer = this.observer;
-    if (observer === undefined) return;
+    if (this.observer === undefined) return;
     const statusCode = failure?.statusCode ?? context.statusCode;
-    const event: SdkOperationEvent = Object.freeze({
-      operation,
-      requestId: context.requestId,
-      sdkVersion,
-      outcome: failure === undefined ? 'succeeded' : 'failed',
-      elapsedMs: Math.max(0, this.seams.now() - startedAt),
-      ...(statusCode === undefined ? {} : { statusCode }),
-      ...(failure === undefined
-        ? {}
-        : { failureCode: failure.code, isRetryable: failure.isRetryable }),
-    });
-    try {
-      const result: unknown = observer.onOperation(event);
-      if (typeof (result as PromiseLike<unknown> | undefined)?.then === 'function') {
-        (result as Promise<unknown>).then(undefined, () => {});
-      }
-    } catch {
-      // Observer failures never affect the operation.
-    }
+    notifyObserver(
+      this.observer,
+      Object.freeze({
+        operation,
+        requestId: context.requestId,
+        sdkVersion,
+        outcome: failure === undefined ? 'succeeded' : 'failed',
+        elapsedMs: Math.max(0, this.seams.now() - startedAt),
+        ...(statusCode === undefined ? {} : { statusCode }),
+        ...(failure === undefined
+          ? {}
+          : { failureCode: failure.code, isRetryable: failure.isRetryable }),
+      })
+    );
   }
 }

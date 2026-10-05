@@ -1,5 +1,6 @@
 import { SdkErrorCodes, type SdkErrorCode } from './error-codes.js';
 import { SdkError } from './sdk-error.js';
+import type { AbortReason } from '../client/operation-lifetime.js';
 import { sdkNativeUnavailableErrorCode } from '../native/native-bridge.js';
 
 interface FailureAdvice {
@@ -55,3 +56,19 @@ export function invalidResponse(requestId: string, cause: unknown, statusCode?: 
   });
 }
 
+/** The executor's failure for an operation that was aborted. */
+export function abortFailure(reason: AbortReason, requestId: string): SdkError {
+  return reason === 'timeout'
+    ? new SdkError({
+        code: SdkErrorCodes.timeout,
+        message: 'The operation timed out.',
+        isRetryable: true,
+        requestId,
+      })
+    : new SdkError({
+        code: SdkErrorCodes.cancelled,
+        message: 'The operation was cancelled.',
+        isRetryable: false,
+        requestId,
+      });
+}
