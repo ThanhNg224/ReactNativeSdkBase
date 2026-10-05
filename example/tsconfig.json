@@ -3,12 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "react-native-sdk-base": [
-        "../src/index"
-      ],
-      "react-native-sdk-base/testing": [
-        "../src/testing"
-      ]
-    }
+      "react-native-sdk-base": ["../src/index"],
+      "react-native-sdk-base/testing": ["../src/testing"]
+    },
+    "types": ["jest"]
   }
 }
