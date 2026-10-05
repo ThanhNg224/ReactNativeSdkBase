@@ -24,3 +24,8 @@
 - Native `getDeviceInfoAsync` on iOS (Swift) and Android (Kotlin).
 - `FakeSdkHttpTransport`, `FakeSdkNativeBridge`, and `fakeSdkDeviceInfo` in
   `react-native-sdk-base/testing`.
+- `sdkNativeUnavailableErrorCode` for custom `SdkNativeBridge` implementations.
+- The native module rejects with `ERR_SDK_MISSING_APP_METADATA` instead of
+  returning empty values; empty native strings map to `invalid_response`.
+- `npm run rename` renames the template (package, native module, Android
+  package, example IDs, repository URLs) in one pass.

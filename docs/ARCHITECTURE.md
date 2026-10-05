@@ -22,8 +22,9 @@ import boundary.
 ## 3. One path through the SDK
 
 Every public operation goes through `SdkOperationRunner`. It owns the
-closed-state check, the request ID, signal linking, the timeout, cancellation
-on `close()`, error normalisation, and the single terminal event. HTTP
+closed-state check, the request ID, cancellation on `close()`, error
+normalisation, and the single terminal event; each operation's
+`OperationLifetime` links the host signal and the timeout to one abort. HTTP
 capabilities use its `SdkRequestExecutor` specialisation; native capabilities
 call it with the native bridge. A capability builds a request or a native call
 and interprets the result; it never invents its own error handling, timeout,
@@ -68,7 +69,8 @@ the shape.
 1. Add an `AsyncFunction` to the Swift and Kotlin modules. Throw failures as
    Expo coded errors with an `ERR_SDK_` code.
 2. Add a method returning `Promise<unknown>` to `SdkNativeBridge` and to
-   `FakeSdkNativeBridge`.
+   `FakeSdkNativeBridge`. This breaks hand-written bridges, so record it in
+   `CHANGELOG.md`.
 3. Add a service that validates the result, maps a mismatch to
    `invalid_response`, and runs through the runner.
 4. Map any new `ERR_SDK_` codes in the native table; follow steps 5–6 above.

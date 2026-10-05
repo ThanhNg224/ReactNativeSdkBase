@@ -58,8 +58,10 @@
 - Every native function is an `AsyncFunction` that returns plain data records.
 - Native code never returns or logs secrets, reads no host configuration, and
   holds no mutable static state.
-- Native failures use Expo coded errors with an `ERR_SDK_` code; the JS side
-  maps the code and never parses a native message.
+- Native failures use Expo coded errors with an `ERR_SDK_` code (for example
+  `ERR_SDK_MISSING_APP_METADATA`), never placeholder values; the JS side maps
+  the code and never parses a native message. A bridge reports a missing
+  module with `sdkNativeUnavailableErrorCode`.
 
 ## Tests
 
@@ -86,6 +88,9 @@
   `npm pack` file-list check, and `npm publish --dry-run`. Run after `npm ci`
   in the root and `example/`.
 - `npm run api` — regenerate both API reports after an intended API change.
+- `npm run rename -- --name <npm-name> [--repo owner/name]` — one-shot template
+  rename of the package, native module, Android package, example IDs, and
+  repository URLs; removes itself afterwards.
 - `npm run packaged-example -- --platform android` — the committed-`HEAD`
   artifact consumer gate (`--abi` defaults to `arm64-v8a`; `--expo latest`
   upgrades the staged consumer to the latest Expo SDK; `--keep` keeps the
