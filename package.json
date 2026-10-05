@@ -49,6 +49,7 @@
     "package:check": "publint --strict && attw --pack . --profile esm-only && node scripts/check-pack.cjs",
     "ci": "npm run verify && npm run build && npm run api:check && npm run docs && npm run package:check && npm publish --dry-run --ignore-scripts",
     "packaged-example": "node scripts/packaged-example.cjs",
+    "rename": "node scripts/rename.cjs",
     "open:ios": "node scripts/open-ios.cjs",
     "open:android": "node scripts/open-android.cjs"
   },

@@ -7,11 +7,40 @@ A template for building a React Native SDK in TypeScript with an Expo native
 module: an instance-based client, an injectable HTTP transport, typed errors,
 best-effort cancellation, and safe structured operation observability.
 
-Clone it, rename the package, and replace the two reference capabilities
-(`health` over HTTP, `device` over the native module) with your own. The
-decisions behind it are in the [design spec](docs/specs/2026-10-05-react-native-sdk-base-design.md);
-the rules for changing it are in [ARCHITECTURE](docs/ARCHITECTURE.md) and
+The decisions behind it are in the
+[design spec](docs/specs/2026-10-05-react-native-sdk-base-design.md); the rules
+for changing it are in [ARCHITECTURE](docs/ARCHITECTURE.md) and
 [STANDARD](docs/STANDARD.md).
+
+<!-- template:start -->
+
+## Using this template
+
+1. Clone the repository and rename everything in one pass (package, native
+   module, Android package, example app IDs, repository URLs):
+
+   ```bash
+   npm ci && npm run rename -- --name @acme/payments-sdk --repo acme/payments-sdk
+   ```
+
+   `--native-name` (default: `PaymentsSdk`) and `--android-package` (default:
+   `expo.modules.paymentssdk`) override the derived names. The tool removes
+   itself and this section when it finishes.
+
+2. Reinstall and regenerate:
+
+   ```bash
+   npm install && npm --prefix example install && npm run api && npm run verify
+   ```
+
+3. Replace the reference capabilities (`health` over HTTP, `device` over the
+   native module) by following
+   [Adding an HTTP capability](docs/ARCHITECTURE.md#adding-an-http-capability)
+   and [Adding a native capability](docs/ARCHITECTURE.md#adding-a-native-capability).
+4. Point the example host at your backend in `example/src/core/config.ts`, and
+   reset `CHANGELOG.md` and the version for your first release.
+
+<!-- template:end -->
 
 ## Support
 
