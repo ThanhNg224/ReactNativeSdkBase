@@ -23,15 +23,8 @@ config.resolver.extraNodeModules = {
   'react-native-sdk-base': '..',
 };
 
-// The SDK sources import siblings with explicit `.js` specifiers that point at `.ts` files.
-const sdkSrc = path.resolve(__dirname, '../src') + path.sep;
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (/^\.{1,2}\/.*\.js$/.test(moduleName) && context.originModulePath.startsWith(sdkSrc)) {
-    return context.resolveRequest(context, moduleName.slice(0, -3), platform);
-  }
-  return context.resolveRequest(context, moduleName, platform);
-};
-
+// Metro resolves the package through its `exports` map into `../build`, exactly
+// like a consumer. Run `npm run dev` in the repository root to rebuild on change.
 config.watchFolders = [path.resolve(__dirname, '..')];
 
 config.transformer.getTransformOptions = async () => ({

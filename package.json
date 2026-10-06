@@ -33,6 +33,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "dev": "tsc --watch",
     "clean": "node scripts/clean.cjs",
     "prepare": "node scripts/clean.cjs && tsc",
     "format": "prettier --write .",
