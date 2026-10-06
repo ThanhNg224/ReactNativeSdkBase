@@ -28,6 +28,9 @@ owning documents (`docs/ARCHITECTURE.md`, `docs/STANDARD.md`) are current.
    `ERR_SDK_MISSING_APP_METADATA`; `ReactContextLost` maps to `native` (§7).
 6. The example's Metro resolves the package through `exports` into `build/`
    (Metro `tsconfigPaths` is off); its `tsc` and Jest read `src/` (§9).
+7. The example installs only declared dependencies (`legacy-peer-deps`), which
+   keeps Reanimated, Worklets, and Gesture Handler out of the native build;
+   Expo Router lists them as optional peers (§9).
 
 **Goal:** Build a publishable React Native SDK template in TypeScript that
 carries over the proven contracts of

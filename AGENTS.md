@@ -33,8 +33,16 @@ authoritative place and link to it elsewhere instead of copying it.
 
 - Use npm with the committed `package-lock.json`; do not switch package
   managers.
-- Build the example for only the ABI of the device being used. The default is
-  `arm64-v8a`; use `x86_64` only for an x86_64 emulator.
+- Build the example for only the ABI of the device being used. The example's
+  config plugin (`example/plugins/with-android-build-performance.js`) defaults
+  to `arm64-v8a` with the Gradle build cache on; pass
+  `-PreactNativeArchitectures=x86_64` only for an x86_64 emulator.
+- `example/.npmrc` sets `legacy-peer-deps`, so npm installs only declared
+  dependencies (it would otherwise pull optional native peers such as
+  Reanimated). Declare any required peer explicitly with `npx expo install`.
+- Use `npm run clean` to remove generated outputs, the example's native
+  projects, and native build output inside `node_modules`; later builds
+  recreate them.
 - After changing `ios/`, `android/`, or `expo-module.config.json`, rebuild the
   example's native project (`npx expo prebuild --clean`); Metro reload alone
   does not pick up native changes.
