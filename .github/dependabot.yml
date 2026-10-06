@@ -17,9 +17,18 @@ updates:
       - 'dependencies'
       - 'automated'
     groups:
-      npm-dependencies:
+      # Minor and patch updates land together; major updates get their own PRs.
+      npm-minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+      # ESLint and its shared config move majors together.
+      eslint-major:
         patterns:
-          - '*'
+          - 'eslint'
+          - 'eslint-config-universe'
+        update-types:
+          - 'major'
     ignore:
       # The Expo SDK pins these together; upgrade them with `npx expo install expo@^<next> --fix`.
       - dependency-name: 'expo'
@@ -36,6 +45,12 @@ updates:
       - dependency-name: 'jest'
       - dependency-name: '@types/jest'
       - dependency-name: 'typescript'
+      # babel-preset-expo targets Babel 7.
+      - dependency-name: '@babel/core'
+        update-types: ['version-update:semver-major']
+      # Matches the Node.js support floor (22.13); raise it with the floor.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
 
   # GitHub Actions workflows
   - package-ecosystem: 'github-actions'
