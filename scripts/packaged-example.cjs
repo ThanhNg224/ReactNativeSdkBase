@@ -152,7 +152,7 @@ function main() {
       );
       run(
         './gradlew',
-        ['assembleRelease', `-PreactNativeArchitectures=${args.abi}`, '--no-daemon'],
+        ['assembleRelease', `-PreactNativeArchitectures=${args.abi}`],
         path.join(consumer, 'android')
       );
       console.log(

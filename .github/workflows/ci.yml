@@ -45,10 +45,15 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22.13.0'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            example/package-lock.json
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
       - run: npm run packaged-example -- --platform android --expo ${{ matrix.expo }}
 
   packaged-ios:
@@ -64,4 +69,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22.13.0'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            example/package-lock.json
       - run: npm run packaged-example -- --platform ios --expo ${{ matrix.expo }}
