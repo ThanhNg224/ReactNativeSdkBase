@@ -70,7 +70,9 @@ const styles = StyleSheet.create({
   card: { borderRadius: 16, padding: spacing.sm, gap: spacing.xs },
   row: { gap: 4 },
   label: { fontSize: 13 },
-  value: { fontSize: 16 },
+  // Android's "bold text" setting draws glyphs wider than React Native measured them,
+  // which clips the last character of a full line; the inset leaves room for that.
+  value: { fontSize: 16, paddingRight: spacing.xs },
   title: { fontSize: 24, fontWeight: '600' },
   body: { fontSize: 16, lineHeight: 24 },
   button: {
