@@ -164,6 +164,8 @@ const sdk = new SdkClient({
 npm ci && npm --prefix example ci
 ```
 
+- `npm run dev` — rebuild `build/` on change; the example's Metro reads it like a
+  consumer would.
 - `npm run verify` — format, lint, typecheck, tests, boundaries, example checks.
 - `npm run ci` — verify plus API reports, TypeDoc, package-quality checks, and
   the publish dry-run.

@@ -38,6 +38,9 @@ authoritative place and link to it elsewhere instead of copying it.
 - After changing `ios/`, `android/`, or `expo-module.config.json`, rebuild the
   example's native project (`npx expo prebuild --clean`); Metro reload alone
   does not pick up native changes.
+- The example's Metro resolves the package through `exports` into `build/`,
+  like a consumer; keep `npm run dev` (`tsc --watch`) running while editing
+  `src/` against the example. Jest and `tsc` in `example/` read `src/` directly.
 - For source changes, run `npm run verify` and inspect the diff. Run
   `npm run ci` for CI or release-facing changes, and `npm run packaged-example`
   for native, packaging, or `exports` changes. For documentation-only changes,

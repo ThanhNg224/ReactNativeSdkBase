@@ -24,9 +24,10 @@ owning documents (`docs/ARCHITECTURE.md`, `docs/STANDARD.md`) are current.
 4. The example's routes are under `example/src/app/` (Expo Router's root), so
    providers live in `example/src/app-providers/` rather than under the routes
    (§9).
-5. The native module falls back to an empty string for a missing bundle or
-   package value instead of throwing; `ReactContextLost` maps to `native`
-   (§7).
+5. Missing bundle or package values reject with
+   `ERR_SDK_MISSING_APP_METADATA`; `ReactContextLost` maps to `native` (§7).
+6. The example's Metro resolves the package through `exports` into `build/`
+   (Metro `tsconfigPaths` is off); its `tsc` and Jest read `src/` (§9).
 
 **Goal:** Build a publishable React Native SDK template in TypeScript that
 carries over the proven contracts of
