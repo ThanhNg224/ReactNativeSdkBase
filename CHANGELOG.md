@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0 — 2026-10-06
 
 - Scaffolded the package as a standalone Expo module (iOS and Android) with
   `react-native-sdk-base` and `react-native-sdk-base/testing` entry points,
