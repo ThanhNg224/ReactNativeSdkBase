@@ -34,8 +34,10 @@ test('isSdkError recognises SdkError and rejects look-alikes', () => {
 
 test('isSdkError recognises an error from another copy of the package', () => {
   jest.isolateModules(() => {
-    const copy =
-      require('../src/internal/errors/sdk-error') as typeof import('../src/internal/errors/sdk-error');
+    // Inside isolateModules this loads a second, independent copy of the module.
+    const copy = jest.requireActual<typeof import('../src/internal/errors/sdk-error')>(
+      '../src/internal/errors/sdk-error'
+    );
     const foreign = new copy.SdkError(init);
     expect(foreign).not.toBeInstanceOf(SdkError);
     expect(isSdkError(foreign)).toBe(true);

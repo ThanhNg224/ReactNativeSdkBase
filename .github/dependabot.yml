@@ -22,11 +22,12 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
-      # ESLint and its shared config move majors together.
+      # ESLint and its configs move majors together.
       eslint-major:
         patterns:
           - 'eslint'
-          - 'eslint-config-universe'
+          - '@eslint/js'
+          - 'typescript-eslint'
         update-types:
           - 'major'
     ignore:
