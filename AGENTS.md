@@ -23,8 +23,8 @@ authoritative place and link to it elsewhere instead of copying it.
   nothing outside `src/`, so the core runs in plain Node.
 - Consumers use the two `exports` entry points (`react-native-sdk-base` and
   `react-native-sdk-base/testing`); `src/internal/` is implementation detail.
-- Route every operation through `SdkOperationRunner`, and HTTP through
-  `SdkRequestExecutor`. Preserve central error mapping, timeout, cancellation,
+- Route every operation through `SdkOperationRunner`, HTTP through
+  `SdkRequestExecutor`, and native calls through `SdkNativeExecutor`. Preserve central error mapping, timeout, cancellation,
   authentication, and one safe terminal event per operation. Events must not
   contain credentials, URL/path/query, headers, bodies, native error messages,
   raw errors, or stack traces.

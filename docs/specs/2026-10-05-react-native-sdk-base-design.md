@@ -422,15 +422,16 @@ There is **one path through the SDK**. Every public operation runs through
 - the single terminal event.
 
 `SdkRequestExecutor` is the HTTP specialisation. It applies authentication,
-`X-Sdk-Version`, `X-Request-Id`, and the status table. Native capabilities call
-the runner with the bridge and the native table (§7). A capability builds a
+`X-Sdk-Version`, `X-Request-Id`, and the status table. `SdkNativeExecutor` is
+its native counterpart: it calls the bridge and applies the native table and
+invalid-result mapping (§7). A capability builds a
 request or a native call and interprets the result. It never invents its own
 error handling, timeout, or retry.
 
 ```text
 SdkClient ──► SdkOperationRunner ──┬─► SdkRequestExecutor ──► SdkHttpTransport ──► fetch
                   │                │        └── auth + version + request-id headers, status table
-                  │                └─► SdkNativeBridge ──► Expo module (Swift / Kotlin)
+                  │                └─► SdkNativeExecutor ──► SdkNativeBridge ──► Expo module (Swift / Kotlin)
                   ├── closed check, request ID, timeout, signal linking
                   ├── error normalisation (executor / status / native tables)
                   └── exactly one safe terminal event

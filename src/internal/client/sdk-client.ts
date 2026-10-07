@@ -1,4 +1,5 @@
 import { normalizeConfig, type SdkConfig } from './config.js';
+import { SdkNativeExecutor } from './native-executor.js';
 import { SdkOperationRunner, type RunnerSeams } from './operation-runner.js';
 import { SdkRequestExecutor } from './request-executor.js';
 import { createDeviceService, type SdkDeviceService } from '../device/device-service.js';
@@ -62,8 +63,7 @@ export class SdkClient {
     const executor = new SdkRequestExecutor(this.runner, this.transport, config);
     this.health = createHealthService(executor, seams.now);
     this.device = createDeviceService(
-      this.runner,
-      options.nativeBridge ?? createExpoNativeBridge()
+      new SdkNativeExecutor(this.runner, options.nativeBridge ?? createExpoNativeBridge())
     );
   }
 

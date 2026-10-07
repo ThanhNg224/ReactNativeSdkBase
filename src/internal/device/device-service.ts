@@ -1,8 +1,6 @@
 import type { SdkDeviceInfo } from './device-info.js';
+import type { SdkNativeExecutor } from '../client/native-executor.js';
 import type { SdkOperationOptions } from '../client/operation-options.js';
-import type { SdkOperationRunner } from '../client/operation-runner.js';
-import { invalidResponse, nativeFailure } from '../errors/failure-tables.js';
-import type { SdkNativeBridge } from '../native/native-bridge.js';
 
 /**
  * Reads device and app metadata through the SDK's native module.
@@ -45,29 +43,14 @@ function decodeDeviceInfo(raw: unknown): SdkDeviceInfo {
   });
 }
 
-export function createDeviceService(
-  runner: SdkOperationRunner,
-  bridge: SdkNativeBridge
-): SdkDeviceService {
+export function createDeviceService(executor: SdkNativeExecutor): SdkDeviceService {
   return Object.freeze({
     getInfo(options?: SdkOperationOptions): Promise<SdkDeviceInfo> {
-      return runner.run(
+      return executor.execute(
         'device.getInfo',
         options,
-        async (context) => {
-          let raw: unknown;
-          try {
-            raw = await bridge.getDeviceInfo();
-          } catch (error) {
-            throw nativeFailure(error, context.requestId);
-          }
-          try {
-            return decodeDeviceInfo(raw);
-          } catch (error) {
-            throw invalidResponse(context.requestId, error);
-          }
-        },
-        nativeFailure
+        (bridge) => bridge.getDeviceInfo(),
+        decodeDeviceInfo
       );
     },
   });

@@ -26,7 +26,7 @@ closed-state check, the request ID, cancellation on `close()`, error
 normalisation, and the single terminal event; each operation's
 `OperationLifetime` links the host signal and the timeout to one abort. HTTP
 capabilities use its `SdkRequestExecutor` specialisation; native capabilities
-call it with the native bridge. A capability builds a request or a native call
+use `SdkNativeExecutor`. A capability builds a request or a native call
 and interprets the result; it never invents its own error handling, timeout,
 or retry policy.
 
@@ -35,7 +35,7 @@ SdkClient ──► SdkOperationRunner ──┬─► SdkRequestExecutor ──
                   │                │        ├── Authorization: Bearer <apiKey>
                   │                │        ├── X-Sdk-Version + X-Request-Id
                   │                │        └── status table
-                  │                └─► SdkNativeBridge ──► Expo module (Swift / Kotlin)
+                  │                └─► SdkNativeExecutor ──► SdkNativeBridge ──► Expo module (Swift / Kotlin)
                   │                         └── native table
                   ├── closed check, request ID, timeout, signal linking
                   └── exactly one safe terminal event
@@ -71,8 +71,9 @@ the shape.
 2. Add a method returning `Promise<unknown>` to `SdkNativeBridge` and to
    `FakeSdkNativeBridge`. This breaks hand-written bridges, so record it in
    `CHANGELOG.md`.
-3. Add a service that validates the result, maps a mismatch to
-   `invalid_response`, and runs through the runner.
+3. Add a service that calls the bridge through `SdkNativeExecutor.execute`
+   with a `decode` function that throws on a bad shape; the executor maps
+   native failures and `invalid_response`.
 4. Map any new `ERR_SDK_` codes in the native table; follow steps 5–6 above.
 5. Rebuild the example's native project and run the packaged-consumer gate.
 
