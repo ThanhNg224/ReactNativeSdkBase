@@ -1,5 +1,4 @@
-/** Why an operation stopped before its work settled. */
-export type AbortReason = 'timeout' | 'cancelled';
+import type { AbortReason } from '../errors/failure-tables.js';
 
 /**
  * The abort machinery of one operation: an internal controller linked to the

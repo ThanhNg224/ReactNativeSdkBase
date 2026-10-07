@@ -1,7 +1,9 @@
 import { SdkErrorCodes, type SdkErrorCode } from './error-codes.js';
 import { SdkError } from './sdk-error.js';
-import type { AbortReason } from '../client/operation-lifetime.js';
 import { sdkNativeUnavailableErrorCode } from '../native/native-bridge.js';
+
+/** Why an operation stopped before its work settled. */
+export type AbortReason = 'timeout' | 'cancelled';
 
 interface FailureAdvice {
   readonly code: SdkErrorCode;
