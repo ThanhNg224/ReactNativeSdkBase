@@ -6,11 +6,22 @@ const runtimeMessage = 'Not guaranteed under React Native/Hermes; see docs/STAND
 
 // Formatting is Prettier's job (`npm run format:check`); ESLint covers correctness.
 module.exports = defineConfig([
-  { ignores: ['build', 'temp', 'api-docs', 'etc', 'example'] },
+  {
+    ignores: [
+      'build',
+      'temp',
+      'api-docs',
+      'etc',
+      'example/node_modules',
+      'example/android',
+      'example/ios',
+      'example/.expo',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['**/*.cjs'],
+    files: ['**/*.cjs', 'example/*.js', 'example/plugins/*.js'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: {

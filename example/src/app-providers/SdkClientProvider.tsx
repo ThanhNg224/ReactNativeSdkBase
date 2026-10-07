@@ -37,7 +37,6 @@ export function SdkClientProvider({ children, fixture, nativeBridge }: Props) {
       void created.close();
     };
     // The client is created once per mount; later prop changes are ignored.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (client === null) return null;
