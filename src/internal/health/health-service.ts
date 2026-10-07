@@ -16,10 +16,7 @@ export interface SdkHealthService {
   check(options?: SdkOperationOptions): Promise<SdkHealth>;
 }
 
-export function createHealthService(
-  executor: SdkRequestExecutor,
-  now: () => number
-): SdkHealthService {
+export function createHealthService(executor: SdkRequestExecutor): SdkHealthService {
   return Object.freeze({
     check(options?: SdkOperationOptions): Promise<SdkHealth> {
       return executor.execute(
@@ -35,7 +32,7 @@ export function createHealthService(
           return Object.freeze({
             isHealthy: status === 'ok',
             status,
-            checkedAt: new Date(now()),
+            checkedAt: new Date(Date.now()),
           });
         }
       );

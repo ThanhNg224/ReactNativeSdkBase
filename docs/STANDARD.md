@@ -69,7 +69,7 @@
 - Core tests run in Node through `FakeSdkHttpTransport` and
   `FakeSdkNativeBridge`. Use a local loopback server only to prove the default
   `fetch` transport on the wire; never depend on an external backend.
-- Freeze time through the clock seam rather than asserting on ranges.
+- Freeze time by stubbing `Date.now` rather than asserting on ranges.
 - Assert request IDs reach every failure path and event, the version header
   matches `package.json`, serialised events and errors never contain the API
   key, URL, or body, and two clients do not interfere.

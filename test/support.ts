@@ -1,6 +1,14 @@
 import { SdkClient, type SdkClientOptions, type SdkOperationEvent } from '../src/index';
-import { runnerSeamsKey } from '../src/internal/client/sdk-client';
 import { FakeSdkHttpTransport, FakeSdkNativeBridge } from '../src/testing';
+
+// Sequential request IDs. Hoisted above the imports, so a test file must import
+// this module before anything that loads the SDK; otherwise the real generator is used.
+let mockNextId = 0;
+jest.mock('../src/internal/util/request-id', () => ({
+  createRequestId: () => (mockNextId += 1).toString(16).padStart(32, '0'),
+}));
+
+afterEach(() => jest.restoreAllMocks());
 
 export const apiKey = 'test-secret-key';
 export const baseUrl = 'https://api.example.test/v1/';
@@ -13,22 +21,19 @@ export interface Harness {
   readonly events: SdkOperationEvent[];
 }
 
-/** A client with frozen time, sequential request IDs, and fakes. */
+/** A client with frozen time, request IDs restarting at 1, and fakes. */
 export function createHarness(overrides: Partial<SdkClientOptions> = {}): Harness {
   const transport = new FakeSdkHttpTransport();
   const bridge = new FakeSdkNativeBridge();
   const events: SdkOperationEvent[] = [];
-  let nextId = 0;
+  mockNextId = 0;
+  jest.spyOn(Date, 'now').mockReturnValue(frozenNow);
   const options = {
     config: { baseUrl, apiKey },
     transport,
     nativeBridge: bridge,
     observer: { onOperation: (event: SdkOperationEvent) => events.push(event) },
     ...overrides,
-    [runnerSeamsKey]: {
-      now: () => frozenNow,
-      createRequestId: () => (nextId += 1).toString(16).padStart(32, '0'),
-    },
   };
   return { client: new SdkClient(options), transport, bridge, events };
 }

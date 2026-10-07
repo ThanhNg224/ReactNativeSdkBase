@@ -305,10 +305,8 @@ so mutating the host's object later has no effect.
 `sdkVersion` must equal the `package.json` `version`. A package test reads
 `package.json` so the wire header cannot drift from the published metadata.
 
-`SdkHealth.checkedAt` comes from an internal clock seam (`() => Date`). It is
-reached through an internal factory that `index.ts` does not export, so tests
-can freeze time and hosts cannot see it. Each returned `Date` is a new
-instance.
+`SdkHealth.checkedAt` is read from `Date.now()`, which tests stub to freeze
+time. Each returned `Date` is a new instance.
 
 **Cancellation.** `signal` is the standard `AbortSignal`, so the SDK does not
 invent its own cancel-token type. A host normally uses one controller per
@@ -638,7 +636,7 @@ equivalents of `make verify` and `make ci`.
    `example/` path.
 5. **Tests:** core tests run in Node through the fakes. One loopback HTTP
    server test proves the default `fetch` transport on the wire, with no
-   external backend. Time is frozen through the clock seam. Tests assert that
+   external backend. Time is frozen by stubbing `Date.now`. Tests assert that
    the request ID reaches every failure path and event, that the version header
    matches `package.json`, that no event or `SdkError` serialisation contains
    the API key, URL, or body, and that two clients with different configs do
@@ -676,7 +674,6 @@ point. `CHANGELOG.md`, `LICENSE`, and the API report are release requirements.
 - an injectable transport owned by its client,
 - silent-by-default observation,
 - supported fakes in a separate entry point,
-- the clock seam,
 - the boundary checks,
 - the packaged-consumer gate from committed `HEAD`,
 - support floors derived rather than picked,

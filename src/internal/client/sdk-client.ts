@@ -1,6 +1,6 @@
 import { normalizeConfig, type SdkConfig } from './config.js';
 import { SdkNativeExecutor } from './native-executor.js';
-import { SdkOperationRunner, type RunnerSeams } from './operation-runner.js';
+import { SdkOperationRunner } from './operation-runner.js';
 import { SdkRequestExecutor } from './request-executor.js';
 import { createDeviceService, type SdkDeviceService } from '../device/device-service.js';
 import { createHealthService, type SdkHealthService } from '../health/health-service.js';
@@ -9,7 +9,6 @@ import type { SdkNativeBridge } from '../native/native-bridge.js';
 import type { SdkObserver } from '../observability/operation-event.js';
 import { createFetchTransport } from '../transport/fetch-transport.js';
 import type { SdkHttpTransport } from '../transport/http-transport.js';
-import { createRequestId } from '../util/request-id.js';
 
 /**
  * Options for constructing an {@link SdkClient}.
@@ -25,13 +24,6 @@ export interface SdkClientOptions {
   readonly nativeBridge?: SdkNativeBridge;
   /** Receives one event per operation. Defaults to none. */
   readonly observer?: SdkObserver;
-}
-
-/** Internal-only option key; package tests use it to freeze time and IDs. */
-export const runnerSeamsKey = Symbol('react-native-sdk-base.runnerSeams');
-
-interface InternalClientOptions extends SdkClientOptions {
-  readonly [runnerSeamsKey]?: RunnerSeams;
 }
 
 /**
@@ -54,14 +46,9 @@ export class SdkClient {
    */
   constructor(options: SdkClientOptions) {
     const config = normalizeConfig(options.config);
-    const seams = (options as InternalClientOptions)[runnerSeamsKey] ?? {
-      now: Date.now,
-      createRequestId,
-    };
     this.transport = options.transport ?? createFetchTransport();
-    this.runner = new SdkOperationRunner(config.requestTimeoutMs, options.observer, seams);
-    const executor = new SdkRequestExecutor(this.runner, this.transport, config);
-    this.health = createHealthService(executor, seams.now);
+    this.runner = new SdkOperationRunner(config.requestTimeoutMs, options.observer);
+    this.health = createHealthService(new SdkRequestExecutor(this.runner, this.transport, config));
     this.device = createDeviceService(
       new SdkNativeExecutor(this.runner, options.nativeBridge ?? createExpoNativeBridge())
     );

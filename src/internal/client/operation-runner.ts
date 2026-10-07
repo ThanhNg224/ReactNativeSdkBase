@@ -2,6 +2,7 @@ import { abortFailure } from '../errors/failure-tables.js';
 import { isSdkError, type SdkError } from '../errors/sdk-error.js';
 import { notifyObserver } from '../observability/notify-observer.js';
 import type { SdkObserver } from '../observability/operation-event.js';
+import { createRequestId } from '../util/request-id.js';
 import { sdkVersion } from '../version.js';
 import { OperationLifetime } from './operation-lifetime.js';
 import type { SdkOperationOptions } from './operation-options.js';
@@ -13,12 +14,6 @@ export interface OperationContext {
   readonly signal: AbortSignal;
   /** Set by the HTTP executor once a response exists. */
   statusCode?: number;
-}
-
-/** Seams that package tests replace; never reachable from the public entry points. */
-export interface RunnerSeams {
-  readonly now: () => number;
-  readonly createRequestId: () => string;
 }
 
 /** Maps a non-`SdkError` rejection to the capability family's failure. */
@@ -35,8 +30,7 @@ export class SdkOperationRunner {
 
   constructor(
     private readonly timeoutMs: number,
-    private readonly observer: SdkObserver | undefined,
-    private readonly seams: RunnerSeams
+    private readonly observer: SdkObserver | undefined
   ) {}
 
   run<T>(
@@ -48,10 +42,10 @@ export class SdkOperationRunner {
     if (this.closing !== undefined) {
       return Promise.reject(new Error('SdkClient is closed.'));
     }
-    const startedAt = this.seams.now();
+    const startedAt = Date.now();
     const lifetime = new OperationLifetime(this.timeoutMs, options?.signal);
     const context: OperationContext = {
-      requestId: this.seams.createRequestId(),
+      requestId: createRequestId(),
       signal: lifetime.signal,
     };
 
@@ -120,7 +114,7 @@ export class SdkOperationRunner {
         requestId: context.requestId,
         sdkVersion,
         outcome: failure === undefined ? 'succeeded' : 'failed',
-        elapsedMs: Math.max(0, this.seams.now() - startedAt),
+        elapsedMs: Math.max(0, Date.now() - startedAt),
         ...(statusCode === undefined ? {} : { statusCode }),
         ...(failure === undefined
           ? {}
