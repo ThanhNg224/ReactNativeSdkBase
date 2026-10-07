@@ -1,1 +1,1 @@
-export { DeviceScreen as default } from '../../features/device/presentation/DeviceScreen';
+export { DeviceScreen as default } from '../../features/device/DeviceScreen';

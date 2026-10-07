@@ -1,5 +1,5 @@
-import { Body, Card, PrimaryButton, Row, Screen, Title } from '../../../core/ui';
-import { useDeviceDetails } from '../data/use-device-details';
+import { Body, Card, PrimaryButton, Row, Screen, Title } from '../../core/ui';
+import { useDeviceDetails } from './use-device-details';
 
 export function DeviceScreen() {
   const query = useDeviceDetails();

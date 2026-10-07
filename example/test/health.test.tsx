@@ -1,8 +1,8 @@
 import { screen } from '@testing-library/react-native';
 import { FakeSdkHttpTransport } from 'react-native-sdk-base/testing';
-import * as healthRepository from '../src/features/health/data/health-repository';
-import { checkHealth } from '../src/features/health/data/health-repository';
-import { HealthScreen } from '../src/features/health/presentation/HealthScreen';
+import * as checkHealthModule from '../src/features/health/check-health';
+import { checkHealth } from '../src/features/health/check-health';
+import { HealthScreen } from '../src/features/health/HealthScreen';
 import { AppFailureError } from '../src/core/errors';
 import { makeClient, renderWithProviders } from './helpers';
 
@@ -41,7 +41,7 @@ describe('HealthScreen', () => {
   afterEach(() => jest.restoreAllMocks());
 
   it('shows loading while the check is pending', async () => {
-    jest.spyOn(healthRepository, 'checkHealth').mockReturnValue(new Promise(() => {}));
+    jest.spyOn(checkHealthModule, 'checkHealth').mockReturnValue(new Promise(() => {}));
     await renderWithProviders(<HealthScreen />);
     expect(screen.getByText('Checking...')).toBeTruthy();
   });

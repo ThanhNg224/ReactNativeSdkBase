@@ -1,8 +1,8 @@
 import { screen } from '@testing-library/react-native';
 import { FakeSdkNativeBridge } from 'react-native-sdk-base/testing';
 import { toAppFailure } from '../src/core/errors';
-import { readDeviceDetails } from '../src/features/device/data/device-repository';
-import { DeviceScreen } from '../src/features/device/presentation/DeviceScreen';
+import { readDeviceDetails } from '../src/features/device/read-device-details';
+import { DeviceScreen } from '../src/features/device/DeviceScreen';
 import { makeClient, renderWithProviders } from './helpers';
 
 describe('device data layer', () => {

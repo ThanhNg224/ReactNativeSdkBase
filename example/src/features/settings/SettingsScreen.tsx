@@ -1,6 +1,6 @@
 import { sdkVersion } from 'react-native-sdk-base';
-import { appConfig } from '../../../core/config';
-import { Card, Row, Screen, Title } from '../../../core/ui';
+import { appConfig } from '../../core/config';
+import { Card, Row, Screen, Title } from '../../core/ui';
 
 /** Read-only diagnostics. The API key is never shown. */
 export function SettingsScreen() {

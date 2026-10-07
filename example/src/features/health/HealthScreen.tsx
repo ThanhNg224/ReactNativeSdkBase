@@ -1,5 +1,5 @@
-import { Body, Card, PrimaryButton, Row, Screen, Title } from '../../../core/ui';
-import { useHealthCheck } from '../data/use-health-check';
+import { Body, Card, PrimaryButton, Row, Screen, Title } from '../../core/ui';
+import { useHealthCheck } from './use-health-check';
 
 export function HealthScreen() {
   const query = useHealthCheck();

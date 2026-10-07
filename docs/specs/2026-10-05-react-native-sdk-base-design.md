@@ -585,9 +585,10 @@ example/
 └── src/
     ├── app/providers/           # SdkClientProvider (host-owned React context), QueryClientProvider
     ├── core/                    # config, error-to-copy mapping, observability
-    └── features/
-        ├── health/{data,domain,presentation}
-        └── device/{data,domain,presentation}
+    └── features/                # one flat folder per feature: screen, hook, SDK call
+        ├── health/              # HealthScreen, use-health-check, check-health
+        ├── device/              # DeviceScreen, use-device-details, read-device-details
+        └── settings/            # SettingsScreen
 ```
 
 - The bottom tab navigator is owned by the `(tabs)` layout. Feature screens do
@@ -595,9 +596,10 @@ example/
 - **TanStack Query** owns async state. The SDK client is created once per app
   by the host provider and closed on unmount. No global state library is
   added; nothing in the example needs one.
-- Each feature's `data/` layer is the only place that touches `SdkClient`. It
-  maps `SdkHealth`, `SdkDeviceInfo`, and `SdkError` to host-owned domain values.
-  Presentation never constructs SDK calls.
+- Each feature's SDK-call function (`check-health.ts`, `read-device-details.ts`)
+  is the only place that touches `SdkClient`. It maps `SdkHealth`,
+  `SdkDeviceInfo`, and `SdkError` to host-owned values. Screens never construct
+  SDK calls. Split a feature into subfolders only when it outgrows a few files.
 - The example is deterministic. HTTP goes through `FakeSdkHttpTransport` behind
   a host-only demo transport. The device tab uses the **real** native module,
   because proving that path is the point of the slice. Settings shows read-only
