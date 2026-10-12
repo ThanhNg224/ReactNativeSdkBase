@@ -37,6 +37,15 @@ authoritative place and link to it elsewhere instead of copying it.
   config plugin (`example/plugins/with-android-build-performance.js`) defaults
   to `arm64-v8a` with the Gradle build cache on; pass
   `-PreactNativeArchitectures=x86_64` only for an x86_64 emulator.
+- The example's config plugin `example/plugins/with-ios-scene-lifecycle.js`
+  adopts the iOS scene life cycle (`SceneDelegate`, scene manifest) that the
+  iOS 27 SDK requires and that Expo SDK 57's prebuild template lacks. It fails
+  prebuild if the template changes and does nothing once the generated
+  `AppDelegate` already provides the factory; delete it after moving to Expo
+  SDK 58.
+- `example/metro.config.js` blocks the repository root's `node_modules/expo`
+  so the SDK's lazy `import('expo')` loads the example's single copy; a second
+  copy fails at runtime with "Requiring unknown module".
 - `example/.npmrc` sets `legacy-peer-deps`, so npm installs only declared
   dependencies (it would otherwise pull optional native peers such as
   Reanimated). Declare any required peer explicitly with `npx expo install`.

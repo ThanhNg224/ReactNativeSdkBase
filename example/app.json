@@ -20,7 +20,12 @@
       "predictiveBackGestureEnabled": false,
       "package": "expo.modules.reactnativesdkbase.example"
     },
-    "plugins": ["expo-router", "expo-status-bar", "./plugins/with-android-build-performance"],
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "./plugins/with-android-build-performance",
+      "./plugins/with-ios-scene-lifecycle"
+    ],
     "scheme": "reactnativesdkbaseexample",
     "experiments": {
       "tsconfigPaths": false

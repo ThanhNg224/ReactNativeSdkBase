@@ -7,11 +7,14 @@ const config = getDefaultConfig(__dirname);
 // npm v7+ will install ../node_modules/react and ../node_modules/react-native because of peerDependencies.
 // To prevent the incompatible react-native between ./node_modules/react-native and ../node_modules/react-native,
 // excludes the one from the parent folder when bundling.
+// The SDK in ../build lazily imports `expo`; without blocking ../node_modules/expo it would load a
+// second copy of `expo` next to this app's and fail with "Requiring unknown module".
 config.resolver.blockList = [
   ...Array.from(config.resolver.blockList ?? []),
   // On windows the path will resolve with `\`. We need to escape it with `\\` for the RegExp.
   new RegExp(path.resolve('..', 'node_modules', 'react').replace(/\\/g, '\\\\')),
   new RegExp(path.resolve('..', 'node_modules', 'react-native').replace(/\\/g, '\\\\')),
+  new RegExp(path.resolve('..', 'node_modules', 'expo').replace(/\\/g, '\\\\') + '[\\\\/]'),
 ];
 
 config.resolver.nodeModulesPaths = [
