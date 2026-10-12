@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { useTheme } from '../../core/theme';
+import { typography, useTheme } from '../../core/theme';
 
 export default function TabsLayout() {
   const theme = useTheme();
@@ -12,7 +12,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textMuted,
         tabBarIconStyle: { display: 'none' },
-        tabBarLabelStyle: { fontSize: 14, marginBottom: 12 },
+        tabBarLabelStyle: { fontSize: typography.label.fontSize, marginBottom: 12 },
       }}>
       <Tabs.Screen name="health" options={{ title: 'Health' }} />
       <Tabs.Screen name="device" options={{ title: 'Device' }} />

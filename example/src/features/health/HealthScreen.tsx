@@ -1,4 +1,13 @@
-import { Body, Card, PrimaryButton, Row, Screen, Title } from '../../core/ui';
+import {
+  Button,
+  Card,
+  ErrorState,
+  ListRow,
+  LoadingState,
+  Screen,
+  StatusBadge,
+  Title,
+} from '../../core/ui';
 import { useHealthCheck } from './use-health-check';
 
 export function HealthScreen() {
@@ -6,28 +15,26 @@ export function HealthScreen() {
   return (
     <Screen
       footer={
-        <PrimaryButton
+        <Button
           title="Check again"
-          disabled={query.isFetching}
+          loading={query.isFetching}
           onPress={() => void query.refetch()}
         />
       }>
       <Title>Service health</Title>
       <Card>
-        {query.isPending ? <Body tone="muted">Checking...</Body> : null}
+        {query.isPending ? <LoadingState label="Checking..." /> : null}
         {query.isError ? (
-          <>
-            <Body tone="danger">{query.error.message}</Body>
-            {query.error.requestId !== undefined ? (
-              <Row label="Request ID" value={query.error.requestId} />
-            ) : null}
-          </>
+          <ErrorState message={query.error.message} requestId={query.error.requestId} />
         ) : null}
         {query.data !== undefined ? (
           <>
-            <Row label="Status" value={query.data.isHealthy ? 'Healthy' : 'Unhealthy'} />
-            <Row label="Reported" value={query.data.statusText} />
-            <Row label="Checked at" value={query.data.checkedAt.toLocaleTimeString()} />
+            <StatusBadge
+              label={query.data.isHealthy ? 'Healthy' : 'Unhealthy'}
+              tone={query.data.isHealthy ? 'success' : 'danger'}
+            />
+            <ListRow label="Reported" value={query.data.statusText} />
+            <ListRow label="Checked at" value={query.data.checkedAt.toLocaleTimeString()} />
           </>
         ) : null}
       </Card>
