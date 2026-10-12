@@ -13,7 +13,10 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <StatusBar style="auto" />
         <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="gallery" options={{ headerShown: true, title: 'Gallery' }} />
+          <Stack.Screen
+            name="gallery"
+            options={{ headerShown: true, title: 'Gallery', headerBackTitle: 'Back' }}
+          />
         </Stack>
       </QueryClientProvider>
     </SdkClientProvider>
