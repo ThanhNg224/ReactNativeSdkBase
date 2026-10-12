@@ -63,6 +63,28 @@
   the code and never parses a native message. A bridge reports a missing
   module with `sdkNativeUnavailableErrorCode`.
 
+## Example app UI
+
+- UI lives only in `example/`; the SDK in `src/` stays free of UI (see
+  [package invariants](../AGENTS.md#package-invariants)).
+- Colours, type sizes, radii, and spacing come from
+  `example/src/core/theme.ts`. Screens contain no colour, font-size, or radius
+  literals.
+- Screens compose components from `example/src/core/ui/`, one component per
+  file, styled as Material 3 tonal: surfaces step through `background`,
+  `surface`, and `surfaceTonal`, with no shadows. The primary action goes in
+  the `Screen` footer.
+- Interactive elements are at least 48dp, set `accessibilityRole` and
+  `accessibilityState`, and every text/background pair meets WCAG AA (4.5:1) in
+  light and dark.
+- Add a component only when a screen needs it or it shows an SDK state; show
+  every component in every state in the gallery (`example/src/features/gallery`,
+  route `/gallery`, deep link
+  `reactnativesdkbaseexample://gallery?scheme=dark`). The gallery is always
+  available; there is no dev-only flag.
+- Failures render through `ErrorState` with host copy from
+  `example/src/core/errors.ts` and the request ID when the SDK supplied one.
+
 ## Tests
 
 - No component tests in the package — it ships no UI.
