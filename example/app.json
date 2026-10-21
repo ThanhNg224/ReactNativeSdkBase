@@ -21,6 +21,7 @@
       "package": "expo.modules.reactnativesdkbase.example"
     },
     "plugins": [
+      "./plugins/with-android-toolchain",
       "expo-router",
       "expo-status-bar",
       "./plugins/with-android-build-performance",
